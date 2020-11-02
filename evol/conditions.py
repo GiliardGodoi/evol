@@ -15,8 +15,12 @@ class Condition:
     """
     conditions = set()
 
-    def __init__(self, condition: Optional[Callable[['BasePopulation'], bool]]):
+    def __init__(self, condition: Optional[Callable[['BasePopulation'], bool]], message=None):
         self.condition = condition
+        if message :
+            self.message = message
+        else:
+            self.message = self.__class__.__name__
 
     def __enter__(self):
         self.conditions.add(self)
@@ -27,7 +31,7 @@ class Condition:
 
     def __call__(self, population: 'BasePopulation') -> None:
         if self.condition and not self.condition(population):
-            raise StopEvolution()
+            raise StopEvolution(self.message)
 
     @classmethod
     def check(cls, population: 'BasePopulation'):
@@ -56,7 +60,7 @@ class MinimumProgress(Condition):
         self._history = self._history[-self.window:]
         self._history.append(population.evaluate(lazy=True).documented_best.fitness)
         if len(self._history) > self.window and abs(self._history[0] - self._history[-1]) <= self.change:
-            raise StopEvolution()
+            raise StopEvolution(self.message)
 
 
 class TimeLimit(Condition):
@@ -79,4 +83,4 @@ class TimeLimit(Condition):
         if self.time is None:
             self.time = monotonic()
         elif monotonic() - self.time > self.seconds:
-            raise StopEvolution()
+            raise StopEvolution(self.message)
