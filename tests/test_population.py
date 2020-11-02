@@ -10,6 +10,8 @@ from evol.helpers.groups import group_duplicate, group_stratified
 from evol.helpers.pickers import pick_random
 from evol.population import Contest
 
+# os.cpu_count()
+current_workers_supported = 1
 
 class TestPopulationSimple:
 
@@ -53,7 +55,7 @@ class TestPopulationCopy:
 
 class TestPopulationEvaluate:
 
-    cpus = os.cpu_count()
+    cpus = current_workers_supported
     latency = 0.005
 
     def test_individuals_are_not_initially_evaluated(self, any_population):
@@ -377,7 +379,7 @@ class TestContestPopulationBest:
         assert pop.documented_best is None
         # with concurrency
         pop = ContestPopulation([0, 1, 2], lambda x, y: [0, 0], contests_per_round=100, individuals_per_contest=2,
-                                concurrent_workers=3)
+                                concurrent_workers=current_workers_supported)
         pop.evaluate()
         assert pop.documented_best is None
         pop = ContestPopulation([0, 1, 2],
@@ -389,6 +391,6 @@ class TestContestPopulationBest:
         pop = ContestPopulation([0, 1, 2],
                                 lambda x, y: [x, y],
                                 contests_per_round=100, individuals_per_contest=2,
-                                concurrent_workers=3)
+                                concurrent_workers=current_workers_supported)
         pop.evaluate()
         assert pop.documented_best is None

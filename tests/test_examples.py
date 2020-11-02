@@ -8,7 +8,9 @@ from examples.rock_paper_scissors import run_rock_paper_scissors  # noqa: E402
 from examples.travelling_salesman import run_travelling_salesman  # noqa: E402
 
 
-N_WORKERS = [1, 2, None]
+# N_WORKERS = [1, 2, None]
+N_WORKERS = [1]
+current_workers_supported = 1
 
 
 @mark.parametrize('concurrent_workers', N_WORKERS)
@@ -25,4 +27,4 @@ def test_rock_paper_scissors(grouped):
 @mark.skipif(sys.version_info < (3, 7), reason='PyTest cannot deal with the multiprocessing in 3.6.')
 @mark.parametrize('n_groups', (1, 4))
 def test_travelling_salesman(n_groups):
-    run_travelling_salesman(concurrent_workers=2, n_groups=n_groups, n_iterations=4, silent=True)
+    run_travelling_salesman(concurrent_workers=current_workers_supported, n_groups=n_groups, n_iterations=4, silent=True)
