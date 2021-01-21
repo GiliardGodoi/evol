@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from copy import copy
 from itertools import cycle, islice
 from math import ceil
+from operator import attrgetter
 from random import choices, randint
 from typing import Any, Callable, Generator, Iterable, Iterator, List, Optional, Sequence, TYPE_CHECKING
 from uuid import uuid4
@@ -63,13 +64,23 @@ class BasePopulation(metaclass=ABCMeta):
     def current_best(self) -> Individual:
         evaluated_individuals = tuple(filter(lambda x: x.fitness is not None, self.individuals))
         if len(evaluated_individuals) > 0:
-            return max(evaluated_individuals, key=lambda x: x.fitness if self.maximize else -x.fitness)
+            function = None
+            if self.maximize:
+                function = max
+            else:
+                function = min
+            return function(evaluated_individuals, key=attrgetter('fitness'))
 
     @property
     def current_worst(self) -> Individual:
         evaluated_individuals = tuple(filter(lambda x: x.fitness is not None, self.individuals))
         if len(evaluated_individuals) > 0:
-            return min(evaluated_individuals, key=lambda x: x.fitness if self.maximize else -x.fitness)
+            function = None
+            if self.maximize:
+                function = min
+            else:
+                function = max
+            return function(evaluated_individuals, key=attrgetter('fitness'))
 
     @property
     def chromosomes(self) -> Generator[Any, None, None]:
@@ -127,8 +138,10 @@ class BasePopulation(metaclass=ABCMeta):
     @property
     def _individual_weights(self):
         try:
-            min_fitness = min(individual.fitness for individual in self)
-            max_fitness = max(individual.fitness for individual in self)
+            fitnesses = [individual.fitness for individual in self]
+
+            min_fitness = min(fitnesses)
+            max_fitness = max(fitnesses)
         except TypeError:
             raise RuntimeError('Individual weights can not be computed if the individuals are not evaluated.')
         if min_fitness == max_fitness:
