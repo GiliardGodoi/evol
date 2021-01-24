@@ -70,6 +70,8 @@ class BasePopulation(metaclass=ABCMeta):
             else:
                 function = min
             return function(evaluated_individuals, key=attrgetter('fitness'))
+        else:
+            raise RuntimeError('population was not evaluated')
 
     @property
     def current_worst(self) -> Individual:
@@ -81,6 +83,8 @@ class BasePopulation(metaclass=ABCMeta):
             else:
                 function = max
             return function(evaluated_individuals, key=attrgetter('fitness'))
+        else:
+            raise RuntimeError('population was not evaluated')
 
     @property
     def chromosomes(self) -> Generator[Any, None, None]:
